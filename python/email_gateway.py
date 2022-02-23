@@ -13,21 +13,23 @@ class Gateway:
 class EmailGateway:
     def __init__(self) -> None:
         self.sent = 0
+        self.from_address = "noreply@example.com"
 
-    def send(self, address: str, subject: str, message: str) -> None:
+    def compose_message(self, address: str, subject: str, message: str) -> MIMEText:
         msg = MIMEText(message)
-
         # me == the sender's email address
         # you == the recipient's email address
         msg["Subject"] = subject
-        from_address = "noreply@example.com"
-        msg["From"] = from_address
+        msg["From"] = self.from_address
         msg["To"] = address
+        return msg
 
+    def send(self, address: str, subject: str, message: str) -> None:
+        msg = self.compose_message(address, subject, message)
         # Send the message via our own SMTP server, but don't include the
         # envelope header.
         s = smtplib.SMTP("localhost")
-        s.sendmail(from_address, [address], msg.as_string())
+        s.sendmail(self.from_address, [address], msg.as_string())
         s.quit()
 
         self.sent += 1

@@ -24,7 +24,9 @@ class Delivery:
 
 
 class DeliveryController:
-    def __init__(self, delivery_schedule: list[Delivery], gateway: Type[Gateway]) -> None:
+    def __init__(
+        self, delivery_schedule: list[Delivery], gateway: Type[Gateway]
+    ) -> None:
         self.delivery_schedule = delivery_schedule
         self.email_gateway = gateway()
         self.map_service = MapService()
