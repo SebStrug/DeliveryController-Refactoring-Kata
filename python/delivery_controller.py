@@ -41,7 +41,11 @@ class DeliveryController:
                 if time_difference < datetime.timedelta(minutes=10):
                     delivery.on_time = True
                 delivery.time_of_delivery = delivery_event.time_of_delivery
-                message = f"""Regarding your delivery today at {delivery.time_of_delivery}. How likely would you be to recommend this delivery service to a friend? Click <a href="url">here</a>"""
+                message = (
+                    f"Regarding your delivery today at {delivery.time_of_delivery}."
+                    "How likely would you be to recommend this delivery service to a friend?"
+                    "Click <a href='url'>here</a>"
+                )
                 self.email_gateway.send(
                     delivery.contact_email, "Your feedback is important to us", message
                 )
@@ -59,7 +63,10 @@ class DeliveryController:
             next_eta = self.map_service.calculate_eta(
                 delivery_event.location, next_delivery.location
             )
-            message = f"Your delivery to {next_delivery.location} is next, estimated time of arrival is in {next_eta} minutes. Be ready!"
+            message = (
+                f"Your delivery to {next_delivery.location} is next, "
+                f"estimated time of arrival is in {next_eta} minutes. Be ready!"
+            )
             self.email_gateway.send(
                 next_delivery.contact_email, "Your delivery will arrive soon", message
             )
