@@ -56,8 +56,8 @@ class DeliveryController:
                 delivery.time_of_delivery = delivery_event.time_of_delivery
                 message = (
                     f"Regarding your delivery today at {delivery.time_of_delivery}."
-                    "How likely would you be to recommend this delivery service to a friend?"
-                    "Click <a href='url'>here</a>"
+                    " How likely would you be to recommend this delivery service to a friend?"
+                    " Click <a href='url'>here</a>"
                 )
                 self.email_gateway.send(
                     delivery.contact_email, "Your feedback is important to us", message
@@ -72,6 +72,7 @@ class DeliveryController:
                     self.map_service.update_average_speed(
                         previous_delivery.location, delivery.location, elapsed_time
                     )
+
         if next_delivery:
             next_eta = self.map_service.calculate_eta(
                 delivery_event.location, next_delivery.location

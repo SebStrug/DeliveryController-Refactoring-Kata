@@ -10,10 +10,10 @@ location2 = Location(52.406374, 16.9251681)
 
 class DummyGateway:
     def __init__(self) -> None:
-        self.sent = 0
+        self.sent: list[tuple[str, str, str]] = []
 
     def send(self, address: str, subject: str, message: str) -> None:
-        self.sent += 1
+        self.sent += [(address, subject, message)]
 
 
 def test_map_service():
@@ -33,7 +33,7 @@ def test_empty_delivery_controller(globe_loc):
     event = DeliveryEvent(id="foo", time_of_delivery=some_time, location=globe_loc)
     controller = DeliveryController([], DummyGateway)
     controller.update_delivery(event)
-    assert controller.email_gateway.sent == 0
+    assert controller.email_gateway.sent == []
 
 
 def test_delivery_controller(globe_loc):
@@ -50,7 +50,7 @@ def test_delivery_controller(globe_loc):
 
     event = DeliveryEvent(id="foo", time_of_delivery=some_time, location=globe_loc)
     controller.update_delivery(event)
-    assert controller.email_gateway.sent == 1
+    assert controller.email_gateway.sent == [('seb@gmail.com', 'Your feedback is important to us', "Regarding your delivery today at 2022-01-01 13:00:00. How likely would you be to recommend this delivery service to a friend? Click <a href='url'>here</a>")]
 
 
 def test_delivery_controller_non_matching_ids(globe_loc):
@@ -67,4 +67,4 @@ def test_delivery_controller_non_matching_ids(globe_loc):
 
     event = DeliveryEvent(id="foo", time_of_delivery=some_time, location=globe_loc)
     controller.update_delivery(event)
-    assert controller.email_gateway.sent == 0
+    assert controller.email_gateway.sent == []

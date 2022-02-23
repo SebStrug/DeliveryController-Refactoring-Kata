@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 
 class Gateway:
     def __init__(self) -> None:
-        self.sent = 0
+        self.sent: list = []
 
     def send(self, address: str, subject: str, message: str) -> None:
         raise NotImplementedError
@@ -12,7 +12,7 @@ class Gateway:
 
 class EmailGateway:
     def __init__(self) -> None:
-        self.sent = 0
+        self.sent: list[MIMEText] = []
         self.from_address = "noreply@example.com"
 
     def compose_message(self, address: str, subject: str, message: str) -> MIMEText:
@@ -32,4 +32,4 @@ class EmailGateway:
         s.sendmail(self.from_address, [address], msg.as_string())
         s.quit()
 
-        self.sent += 1
+        self.sent += [msg]

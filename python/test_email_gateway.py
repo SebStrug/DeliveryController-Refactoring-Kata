@@ -14,5 +14,5 @@ def test_send(mocker):
     m_client = mocker.patch("email_gateway.smtplib.SMTP")
     client = EmailGateway()
     client.send("seb@gmail.com", "kata", "hello world")
-    assert client.sent == 1
+    assert len(client.sent) == 1
     m_client.return_value.sendmail.assert_called_once()
