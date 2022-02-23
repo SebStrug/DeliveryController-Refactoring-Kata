@@ -2,11 +2,17 @@ import pytest
 from datetime import datetime
 
 from delivery_controller import DeliveryController, Delivery, DeliveryEvent
-from email_gateway import DummyGateway
 from map_service import MapService, Location
 
 location1 = Location(52.2296756, 21.0122287)
 location2 = Location(52.406374, 16.9251681)
+
+class DummyGateway:
+    def __init__(self):
+        self.sent = 0
+
+    def send(self, address, subject, message):
+        self.sent += 1
 
 
 def test_map_service():

@@ -2,13 +2,12 @@ import smtplib
 from email.mime.text import MIMEText
 
 
-class DummyGateway:
+class Gateway:
     def __init__(self):
         self.sent = 0
 
     def send(self, address, subject, message):
-        self.sent += 1
-
+        raise NotImplementedError
 
 class EmailGateway:
     def __init__(self):

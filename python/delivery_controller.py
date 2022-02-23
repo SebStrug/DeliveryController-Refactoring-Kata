@@ -1,8 +1,7 @@
 import datetime
 from dataclasses import dataclass
-from typing import Union
 
-from email_gateway import DummyGateway, EmailGateway
+from email_gateway import Gateway
 from map_service import MapService, Location
 
 
@@ -25,7 +24,7 @@ class Delivery:
 
 class DeliveryController:
     def __init__(
-        self, delivery_schedule: list, gateway: Union[EmailGateway, DummyGateway]
+        self, delivery_schedule: list[Delivery], gateway: Gateway
     ):
         self.delivery_schedule = delivery_schedule
         self.email_gateway = gateway()
