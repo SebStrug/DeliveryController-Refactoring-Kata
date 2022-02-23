@@ -38,6 +38,7 @@ class DeliveryController:
         2. Mark that delivery as arrived
         3. Calculate the time difference between the delivery time and
         delivery event time
+        # TODO (SS): Remove this magic number
         4. If it's less than 10 minutes, mark it as on time
         5. Send a feedback email
         6. If there are more deliveries... get the ETA of the next delivery...
