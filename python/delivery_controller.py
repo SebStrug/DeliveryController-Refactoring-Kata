@@ -30,6 +30,18 @@ class DeliveryController:
         self.map_service = MapService()
 
     def update_delivery(self, delivery_event: DeliveryEvent) -> None:
+        """Given a delivery event:
+        1. Check if the event ID matches one of the deliveries in the
+        delivery schedule...
+        2. Mark that delivery as arrived
+        3. Calculate the time difference between the delivery time and
+        delivery event time
+        4. If it's less than 10 minutes, mark it as on time
+        5. Send a feedback email
+        6. If there are more deliveries... get the ETA of the next delivery...
+        and send an ETA email
+        7. If not on time, update the average speed
+        """
         next_delivery = None
         for i, delivery in enumerate(self.delivery_schedule):
             if delivery_event.id == delivery.id:
