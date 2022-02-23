@@ -45,7 +45,6 @@ class DeliveryController:
         and send an ETA email
         7. If not on time, update the average speed
         """
-        next_delivery = None
         for i, delivery in enumerate(self.delivery_schedule):
             if delivery_event.id == delivery.id:
                 delivery.arrived = True
@@ -63,8 +62,15 @@ class DeliveryController:
                 self.email_gateway.send(
                     delivery.contact_email, "Your feedback is important to us", message
                 )
-                if len(self.delivery_schedule) > i + 1:
-                    next_delivery = self.delivery_schedule[i + 1]
+
+                try:
+                    self.send_next_delivery_email(
+                        delivery_event.location, self.delivery_schedule[i + 1]
+                    )
+                except IndexError:
+                    # no next delivery, so no next delivery email to send
+                    pass
+
                 if not delivery.on_time and len(self.delivery_schedule) > 1 and i > 0:
                     previous_delivery = self.delivery_schedule[i - 1]
                     elapsed_time = (
@@ -74,14 +80,22 @@ class DeliveryController:
                         previous_delivery.location, delivery.location, elapsed_time
                     )
 
-        if next_delivery:
-            next_eta = self.map_service.calculate_eta(
-                delivery_event.location, next_delivery.location
-            )
-            message = (
-                f"Your delivery to {next_delivery.location} is next, "
-                f"estimated time of arrival is in {next_eta} minutes. Be ready!"
-            )
-            self.email_gateway.send(
-                next_delivery.contact_email, "Your delivery will arrive soon", message
-            )
+    def send_next_delivery_email(
+        self, prev_event_loc: Location, next_delivery: Delivery
+    ) -> None:
+        """Send an email for the next delivery
+
+        Args:
+            prev_event_loc: Previous event location
+            next_delivery: Next delivery
+        """
+        next_eta = self.map_service.calculate_eta(
+            prev_event_loc, next_delivery.location
+        )
+        message = (
+            f"Your delivery to {next_delivery.location} is next, "
+            f"estimated time of arrival is in {next_eta} minutes. Be ready!"
+        )
+        self.email_gateway.send(
+            next_delivery.contact_email, "Your delivery will arrive soon", message
+        )
