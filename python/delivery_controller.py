@@ -46,33 +46,34 @@ class DeliveryController:
         7. If not on time, update the average speed
         """
         for i, delivery in enumerate(self.delivery_schedule):
-            if delivery_event.id == delivery.id:
-                delivery.arrived = True
-                time_difference = (
-                    delivery_event.time_of_delivery - delivery.time_of_delivery
-                )
-                if time_difference < datetime.timedelta(minutes=10):
-                    delivery.on_time = True
+            if delivery_event.id != delivery.id:
+                continue
+            delivery.arrived = True
+            time_difference = (
+                delivery_event.time_of_delivery - delivery.time_of_delivery
+            )
+            if time_difference < datetime.timedelta(minutes=10):
+                delivery.on_time = True
 
-                self.send_delivery_feedback_email(
-                    delivery_event.time_of_delivery, delivery.contact_email
+            self.send_delivery_feedback_email(
+                delivery_event.time_of_delivery, delivery.contact_email
+            )
+            try:
+                self.send_next_delivery_email(
+                    delivery_event.location, self.delivery_schedule[i + 1]
                 )
-                try:
-                    self.send_next_delivery_email(
-                        delivery_event.location, self.delivery_schedule[i + 1]
-                    )
-                except IndexError:
-                    # no next delivery, so no next delivery email to send
-                    pass
+            except IndexError:
+                # no next delivery, so no next delivery email to send
+                pass
 
-                if not delivery.on_time and len(self.delivery_schedule) > 1 and i > 0:
-                    previous_delivery = self.delivery_schedule[i - 1]
-                    elapsed_time = (
-                        delivery.time_of_delivery - previous_delivery.time_of_delivery
-                    )
-                    self.map_service.update_average_speed(
-                        previous_delivery.location, delivery.location, elapsed_time
-                    )
+            if not delivery.on_time and len(self.delivery_schedule) > 1 and i > 0:
+                previous_delivery = self.delivery_schedule[i - 1]
+                elapsed_time = (
+                    delivery.time_of_delivery - previous_delivery.time_of_delivery
+                )
+                self.map_service.update_average_speed(
+                    previous_delivery.location, delivery.location, elapsed_time
+                )
 
     def send_next_delivery_email(
         self, prev_event_loc: Location, next_delivery: Delivery
