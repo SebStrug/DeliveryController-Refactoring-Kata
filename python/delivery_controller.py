@@ -1,5 +1,6 @@
 import datetime
 from dataclasses import dataclass
+from typing import Type
 
 from email_gateway import Gateway
 from map_service import MapService, Location
@@ -23,14 +24,12 @@ class Delivery:
 
 
 class DeliveryController:
-    def __init__(
-        self, delivery_schedule: list[Delivery], gateway: Gateway
-    ):
+    def __init__(self, delivery_schedule: list[Delivery], gateway: Type[Gateway]) -> None:
         self.delivery_schedule = delivery_schedule
         self.email_gateway = gateway()
         self.map_service = MapService()
 
-    def update_delivery(self, delivery_event: DeliveryEvent):
+    def update_delivery(self, delivery_event: DeliveryEvent) -> None:
         next_delivery = None
         for i, delivery in enumerate(self.delivery_schedule):
             if delivery_event.id == delivery.id:

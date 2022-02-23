@@ -3,17 +3,18 @@ from email.mime.text import MIMEText
 
 
 class Gateway:
-    def __init__(self):
+    def __init__(self) -> None:
         self.sent = 0
 
-    def send(self, address, subject, message):
+    def send(self, address: str, subject: str, message: str) -> None:
         raise NotImplementedError
 
+
 class EmailGateway:
-    def __init__(self):
+    def __init__(self) -> None:
         self.sent = 0
 
-    def send(self, address, subject, message):
+    def send(self, address: str, subject: str, message: str) -> None:
         msg = MIMEText(message)
 
         # me == the sender's email address

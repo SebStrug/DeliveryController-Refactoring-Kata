@@ -7,11 +7,12 @@ from map_service import MapService, Location
 location1 = Location(52.2296756, 21.0122287)
 location2 = Location(52.406374, 16.9251681)
 
+
 class DummyGateway:
-    def __init__(self):
+    def __init__(self) -> None:
         self.sent = 0
 
-    def send(self, address, subject, message):
+    def send(self, address: str, subject: str, message: str) -> None:
         self.sent += 1
 
 
