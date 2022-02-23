@@ -1,6 +1,6 @@
 import datetime
 from dataclasses import dataclass
-from typing import Type
+from typing import Optional, Type
 
 from email_gateway import Gateway
 from map_service import MapService, Location
@@ -22,6 +22,27 @@ class Delivery:
     arrived: bool
     on_time: bool
 
+class DeliverySchedule:
+    # linked list
+    def __init__(self):
+        self.head: Optional[Delivery] = None
+
+    def __repr__(self) -> str:
+        node = self.head
+        nodes = []
+        while node is not None:
+            nodes.append(node.data)
+            node = node.next
+        nodes.append("None")
+        return " -> ".join(nodes)
+
+class DeliveryNode:
+    def __init__(self, data: Delivery):
+        self.data = data
+        self.next: Optional['DeliveryNode'] = None
+
+    def __repr__(self) -> str:
+        return str(self.data)
 
 class DeliveryController:
     def __init__(
