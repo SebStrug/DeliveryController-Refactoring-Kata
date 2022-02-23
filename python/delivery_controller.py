@@ -53,16 +53,10 @@ class DeliveryController:
                 )
                 if time_difference < datetime.timedelta(minutes=10):
                     delivery.on_time = True
-                delivery.time_of_delivery = delivery_event.time_of_delivery
-                message = (
-                    f"Regarding your delivery today at {delivery.time_of_delivery}."
-                    " How likely would you be to recommend this delivery service to a friend?"
-                    " Click <a href='url'>here</a>"
-                )
-                self.email_gateway.send(
-                    delivery.contact_email, "Your feedback is important to us", message
-                )
 
+                self.send_delivery_feedback_email(
+                    delivery_event.time_of_delivery, delivery.contact_email
+                )
                 try:
                     self.send_next_delivery_email(
                         delivery_event.location, self.delivery_schedule[i + 1]
@@ -99,3 +93,19 @@ class DeliveryController:
         self.email_gateway.send(
             next_delivery.contact_email, "Your delivery will arrive soon", message
         )
+
+    def send_delivery_feedback_email(
+        self, time_of_delivery: datetime, email: str
+    ) -> None:
+        """Send email asking for feedback
+
+        Args:
+            time_of_delivery: Time of delivery event
+            email: Email address to send feedback email to
+        """
+        message = (
+            f"Regarding your delivery today at {time_of_delivery}."
+            " How likely would you be to recommend this delivery service to a friend?"
+            " Click <a href='url'>here</a>"
+        )
+        self.email_gateway.send(email, "Your feedback is important to us", message)
