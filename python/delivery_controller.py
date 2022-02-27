@@ -22,27 +22,17 @@ class Delivery:
     arrived: bool
     on_time: bool
 
-class DeliverySchedule:
-    # linked list
-    def __init__(self):
-        self.head: Optional[Delivery] = None
-
-    def __repr__(self) -> str:
-        node = self.head
-        nodes = []
-        while node is not None:
-            nodes.append(node.data)
-            node = node.next
-        nodes.append("None")
-        return " -> ".join(nodes)
 
 class DeliveryNode:
     def __init__(self, data: Delivery):
+        # Define a doubly linked list
         self.data = data
-        self.next: Optional['DeliveryNode'] = None
+        self.next: Optional["DeliveryNode"] = None
+        self.prev: Optional["DeliveryNode"] = None
 
     def __repr__(self) -> str:
-        return str(self.data)
+        return str(self.data) + f", next: {self.next}"
+
 
 class DeliveryController:
     def __init__(
@@ -51,6 +41,29 @@ class DeliveryController:
         self.delivery_schedule = delivery_schedule
         self.email_gateway = gateway()
         self.map_service = MapService()
+        self.head: Optional[DeliveryNode] = None
+        self.create_delivery_list(self.delivery_schedule)
+
+    def create_delivery_list(self, deliveries: list[Delivery]) -> None:
+        """Create a doubly linked list of deliveries
+
+        Args:
+            deliveries: List of deliveries as Delivery objects
+
+        Returns:
+            Doubly linked list of deliveries
+        """
+        if not deliveries:
+            return
+
+        self.head = DeliveryNode(deliveries[0])
+        current_node = self.head
+        for delivery in deliveries[1:]:
+            new_node = DeliveryNode(delivery)
+            current_node.next = new_node
+            new_node.prev = current_node
+            current_node = new_node
+        return
 
     def update_delivery(self, delivery_event: DeliveryEvent) -> None:
         """Given a delivery event:
@@ -66,35 +79,35 @@ class DeliveryController:
         and send an ETA email
         7. If not on time, update the average speed
         """
-        for i, delivery in enumerate(self.delivery_schedule):
-            if delivery_event.id != delivery.id:
+        if not self.head:
+            return
+
+        node = self.head
+        while node:
+            if node.data.id != delivery_event.id:
+                node = node.next
                 continue
-            delivery.arrived = True
-            time_difference = (
-                delivery_event.time_of_delivery - delivery.time_of_delivery
-            )
-            if time_difference < datetime.timedelta(minutes=10):
-                delivery.on_time = True
+
+            node.data.arrived = True
+            time_diff = delivery_event.time_of_delivery - node.data.time_of_delivery
+            if time_diff < datetime.timedelta(minutes=10):
+                node.data.on_time = True
 
             self.send_delivery_feedback_email(
-                delivery_event.time_of_delivery, delivery.contact_email
+                delivery_event.time_of_delivery, node.data.contact_email
             )
-            try:
-                self.send_next_delivery_email(
-                    delivery_event.location, self.delivery_schedule[i + 1]
-                )
-            except IndexError:
-                # no next delivery, so no next delivery email to send
-                pass
 
-            if not delivery.on_time and len(self.delivery_schedule) > 1 and i > 0:
-                previous_delivery = self.delivery_schedule[i - 1]
+            if node.next:
+                self.send_next_delivery_email(delivery_event.location, node.next.data)
+
+            if not node.data.on_time and node.prev:
                 elapsed_time = (
-                    delivery.time_of_delivery - previous_delivery.time_of_delivery
+                    node.data.time_of_delivery - node.prev.data.time_of_delivery
                 )
                 self.map_service.update_average_speed(
-                    previous_delivery.location, delivery.location, elapsed_time
+                    node.prev.data.location, node.data.location, elapsed_time
                 )
+            node = node.next
 
     def send_next_delivery_email(
         self, prev_event_loc: Location, next_delivery: Delivery
